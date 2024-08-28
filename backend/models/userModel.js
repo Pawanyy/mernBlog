@@ -6,6 +6,7 @@ const userSchema = new Schema({
     password: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     isActive: { type: Boolean, default: true },
+    profilePicture: { type: String, default: "https://cdn-icons-png.flaticon.com/512/9203/9203764.png" },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
 }, { timeseries: true })
 

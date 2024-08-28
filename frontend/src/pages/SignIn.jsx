@@ -7,6 +7,7 @@ import {
   signInStart,
   signInSuccess,
 } from "../app/user/userSlice.js";
+import OAuth from "../components/OAuth.jsx";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
@@ -38,19 +39,19 @@ export default function SignIn() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      const data = await res.json();
+      const resData = await res.json();
 
-      if (data.success === false || res.ok === false) {
-        dispatch(signInFailure(data.message || "Sign in failed"));
+      if (resData.success === false || res.ok === false) {
+        dispatch(signInFailure(resData.message || "Sign in failed"));
         return;
       }
 
       if (res.ok) {
-        dispatch(signInSuccess(data.data));
+        dispatch(signInSuccess(resData.data));
         navigate("/");
       }
 
-      console.log("Data: ", data);
+      console.log("Data: ", resData);
     } catch (error) {
       console.error("Error:", error);
       dispatch(signInFailure(error.message || "Sign in failed"));
@@ -109,6 +110,7 @@ export default function SignIn() {
                 "Sign In"
               )}
             </Button>
+            <OAuth />
           </form>
           <div className="flex gap-2 text-sm mt-5">
             <span>Don't Have an account?</span>

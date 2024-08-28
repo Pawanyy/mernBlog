@@ -53,9 +53,41 @@ const login = async (req, res) => {
         throw new ApiError(401, "Invalid username or password");
     }
 
+    const { password: passwordhash, ...restUser } = user._doc;
+
     const tokenInfo = createLoginToken({ id: user._id, username: user.username })
 
-    return res.json({ message: "User Login Successfully", data: { tokenInfo } })
+    return res.json({ message: "User Login Successfully", data: { tokenInfo, user: restUser } })
 }
 
-export { login, register };
+const google = async (req, res) => {
+    const { email, displayName: name, photoURL } = req.body;
+
+    const user = await userModel.findOne({ email: email.toLowerCase() });
+
+    if (user) {
+        const { password: passwordhash, ...restUser } = user._doc;
+
+        const tokenInfo = createLoginToken({ id: user._id, username: user.username });
+
+        return res.json({ message: "User Login Successfully", data: { tokenInfo, user: restUser } });
+    } else {
+        const randomPassword = Math.random().toString(36).slice(-8);
+
+        const newUser = await new userModel({
+            email: email.toLowerCase(),
+            username: name.toLowerCase().split(" ").join("") + Math.random().toString(9).slice(-4),
+            password: randomPassword,
+            profilePicture: photoURL
+        })
+
+        await newUser.save();
+        const { password: passwordhash, ...restUser } = newUser._doc;
+
+        const tokenInfo = createLoginToken({ id: newUser._id, username: newUser.username });
+
+        return res.json({ message: "User Login Successfully", data: { tokenInfo, user: restUser } });
+    }
+}
+
+export { login, register, google };
